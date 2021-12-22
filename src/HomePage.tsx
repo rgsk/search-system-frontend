@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "../styles/Home.module.css";
 import { Debounce } from "./utils";
-import axios from "axios";
+import axios, { Axios, CancelTokenSource } from "axios";
 import { CountryRow } from "./CountryRow";
 export const HomePage = () => {
   const [input, setInput] = useState("");
@@ -9,21 +9,38 @@ export const HomePage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
-  const debouncedSearch = useMemo(
-    () =>
-      new Debounce(async (input: string) => {
-        // {{server}}/countries/search?name=R
-        const result = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER}/countries/search?name=${input}`
-        );
-        console.log(result.data);
-        setCountries(result.data.countries);
-      }),
-    []
-  );
+  // const debouncedSearch = useMemo(
+  //   () =>
+  //     new Debounce(async (input: string, ourRequest: CancelTokenSource) => {
+  //       // {{server}}/countries/search?name=R
+  //       const result = await axios.get(
+  //         `${process.env.NEXT_PUBLIC_SERVER}/countries/search?name=${input}`,
+  //         {
+  //           cancelToken: ourRequest.token,
+  //         }
+  //       );
+  //       console.log(result.data);
+  //       setCountries(result.data.countries);
+  //     }, 100),
+  //   []
+  // );
   useEffect(() => {
-    debouncedSearch.call(input);
-  }, [debouncedSearch, input]);
+    const ourRequest = axios.CancelToken.source();
+    (async () => {
+      const result = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER}/countries/search?name=${input}&limit=100`,
+        {
+          cancelToken: ourRequest.token,
+        }
+      );
+      console.log(result.data);
+      setCountries(result.data.countries);
+    })();
+
+    return () => {
+      ourRequest.cancel(); // <-- 3rd step
+    };
+  }, [input]);
   return (
     <div className={styles.container}>
       <h1>Welcome to search suggestion system</h1>
@@ -35,9 +52,9 @@ export const HomePage = () => {
           margin: "2rem 0",
         }}
       >
-        {countries.map((c: any, i) => (
-          <CountryRow key={i} country={c} />
-        ))}
+        {countries.length
+          ? countries.map((c: any, i) => <CountryRow key={i} country={c} />)
+          : "No Matches"}
       </div>
       {/* <div
         style={{
