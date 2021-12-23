@@ -28,12 +28,12 @@ export const HomePage = () => {
     const ourRequest = axios.CancelToken.source();
     (async () => {
       const result = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER}/countries/search?name=${input}&limit=100`,
+        `${process.env.NEXT_PUBLIC_SERVER}/countries/search/cppMap?name=${input}&all=false&limit=50&page=1&turbo=true`,
         {
           cancelToken: ourRequest.token,
         }
       );
-      console.log(result.data);
+      // console.log(result.data);
       setCountries(result.data.countries);
     })();
 
