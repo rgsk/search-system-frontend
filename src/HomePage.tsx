@@ -56,7 +56,7 @@ export const HomePage = () => {
           ? countries.map((c: any, i) => <CountryRow key={i} country={c} />)
           : "No Matches"}
       </div>
-      {/* <div
+      <div
         style={{
           display: "flex",
           flexDirection: "row",
@@ -90,7 +90,7 @@ export const HomePage = () => {
           flexDirection: "row",
           gap: 10,
         }}
-      ></div> */}
+      ></div>
     </div>
   );
 };
