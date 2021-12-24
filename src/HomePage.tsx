@@ -139,7 +139,7 @@ export const HomePage = () => {
             }}
           >
             {totalPages <= 10
-              ? Array(10)
+              ? Array(totalPages)
                   .fill(0)
                   .map((v, i) => (
                     <PageCell
